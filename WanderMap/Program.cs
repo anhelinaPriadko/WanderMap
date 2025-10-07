@@ -24,4 +24,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+//for each entity create a slug route
+//app.MapControllerRoute(
+//    name: "article",
+//    pattern: "articles/{slug}",
+//    defaults: new { controller = "Article", action = "Details" });
+
 app.Run();
