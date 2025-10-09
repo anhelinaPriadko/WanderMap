@@ -1,22 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using WanderMap.Data;
 using WanderMap.Models;
+using WanderMap.Services;
 
 namespace WanderMap.Controllers
 {
     public class CategoriesController : Controller
     {
         private readonly WanderMapDbContext _context;
+        private readonly ISlugService _slugService;
 
-        public CategoriesController(WanderMapDbContext context)
+        public CategoriesController(WanderMapDbContext context, ISlugService slugService)
         {
             _context = context;
+            _slugService = slugService;
+        }
+
+        public bool CheckNameDublication(string Name)
+        {
+            return _context.Categories.Any(c => c.Name == Name);
+        }
+
+        public bool CheckNameDublicationForEdiding(string Name, int Id)
+        {
+            return _context.Categories.Any(c => c.Name == Name && c.Id == Id);
         }
 
         // GET: Categories
@@ -54,15 +69,32 @@ namespace WanderMap.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Slug,Description")] Category category)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description")] Category category, CancellationToken ct)
         {
+            if (CheckNameDublication(category.Name))
+            {
+                ModelState.AddModelError("Name", "Category with such name already exists");
+            }
+
+            if (category.Name != null){
+                category.Slug = await _slugService.GenerateUniqueSlugAsync<Category>(_context, category.Name, null, ct);
+                ModelState.Remove(nameof(category.Slug));
+                TryValidateModel(category);
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(category);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest("Something went wrong!");
+                }
             }
-            return View(category);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Categories/Edit/5
@@ -86,34 +118,43 @@ namespace WanderMap.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Slug,Description")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Category category, CancellationToken ct)
         {
             if (id != category.Id)
             {
                 return NotFound();
             }
 
+            var existing = await _context.Categories.FindAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            if(category.Name != existing.Name)
+                category.Slug = await _slugService
+                    .GenerateUniqueSlugAsync<Category>(
+                    _context, category.Name, e => e.Id == id, ct
+                    );
+            else
+                category.Slug = existing.Slug;
+
+            existing.Name = category.Name;
+            existing.Description = category.Description;
+            existing.Slug = category.Slug;
+            ModelState.Remove(nameof(category.Slug));
+            TryValidateModel(category);
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(category);
+                    _context.Update(existing);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!CategoryExists(category.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return BadRequest("Something went wrong!");
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Categories/Delete/5

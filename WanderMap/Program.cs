@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WanderMap.Data;
+using WanderMap.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,7 @@ builder.Services.AddControllersWithViews();
 // 2?? Реєструємо наш контекст з PostgreSQL
 builder.Services.AddDbContext<WanderMapDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddScoped<ISlugService, SlugService>();    
 // 3?? Створюємо застосунок
 var app = builder.Build();
 
