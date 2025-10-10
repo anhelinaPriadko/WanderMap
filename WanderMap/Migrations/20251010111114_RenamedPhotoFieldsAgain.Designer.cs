@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WanderMap.Data;
@@ -11,9 +12,11 @@ using WanderMap.Data;
 namespace WanderMap.Migrations
 {
     [DbContext(typeof(WanderMapDbContext))]
-    partial class WanderMapDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251010111114_RenamedPhotoFieldsAgain")]
+    partial class RenamedPhotoFieldsAgain
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -7,9 +7,8 @@
         public Place? Place { get; set; }
         public int? EventId { get; set; }
         public Event? Event { get; set; }
-        public string Url { get; set; } = null!; 
-        public string? BlobPath { get; set; }
-        public string FileName { get; set; } = null!; 
+        public string Url { get; set; } = null!; // Веб-адреса, напр. /images/1a2b3c4d.jpg
+        public string OriginalFileName { get; set; } = null!;
         public string ContentType { get; set; } = null!; 
         public long Size { get; set; }
         public bool IsMain { get; set; }
