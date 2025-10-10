@@ -31,7 +31,7 @@ namespace WanderMap.Controllers
 
         public bool CheckNameDublicationForEdiding(string Name, int Id)
         {
-            return _context.Categories.Any(c => c.Name == Name && c.Id == Id);
+            return _context.Categories.Any(c => c.Name == Name && c.Id != Id);
         }
 
         // GET: Categories
@@ -125,6 +125,11 @@ namespace WanderMap.Controllers
                 return NotFound();
             }
 
+            if (CheckNameDublicationForEdiding(category.Name, category.Id))
+            {
+                ModelState.AddModelError("Name", "Category with such name already exists");
+            }
+
             var existing = await _context.Categories.FindAsync(id);
             if (existing == null)
                 return NotFound();
@@ -181,11 +186,21 @@ namespace WanderMap.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var category = await _context.Categories.FindAsync(id);
-            if (category != null)
+            
+            if (category == null)
             {
-                _context.Categories.Remove(category);
+                return BadRequest("Something went wrong!");
             }
 
+            var isLinked = await _context.Events.AnyAsync(e => e.CategoryId == id)
+                || await _context.Places.AnyAsync(p => p.CategoryId == id);
+
+            if (isLinked)
+            {
+                return BadRequest("You can`t delete this category, as it has linked data!");
+            }
+
+            _context.Remove(category);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
