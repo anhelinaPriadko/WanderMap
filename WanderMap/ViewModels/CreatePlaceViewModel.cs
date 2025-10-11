@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using WanderMap.Providers;
 
 namespace WanderMap.ViewModels
 {
@@ -13,8 +15,10 @@ namespace WanderMap.ViewModels
 
         public string? Address { get; set; }
 
+        [ModelBinder(typeof(InvariantDecimalModelBinder))]
         public decimal? Latitude { get; set; }
 
+        [ModelBinder(typeof(InvariantDecimalModelBinder))]
         public decimal? Longitude { get; set; }
 
         public string? WebsiteUrl { get; set; }

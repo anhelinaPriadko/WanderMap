@@ -24,12 +24,12 @@ namespace WanderMap.Controllers
             _slugService = slugService;
         }
 
-        public bool CheckNameDublication(string Name)
+        private bool CheckNameDublication(string Name)
         {
             return _context.Categories.Any(c => c.Name == Name);
         }
 
-        public bool CheckNameDublicationForEdiding(string Name, int Id)
+        private bool CheckNameDublicationForEdiding(string Name, int Id)
         {
             return _context.Categories.Any(c => c.Name == Name && c.Id != Id);
         }

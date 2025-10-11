@@ -84,8 +84,8 @@ namespace WanderMap.Data
                       .HasForeignKey(p => p.MainPhotoId)
                       .IsRequired(false)
                       .OnDelete(DeleteBehavior.SetNull);
-                entity.Property(p => p.Latitude).HasColumnType("decimal(9,6)").IsRequired(false);
-                entity.Property(p => p.Longitude).HasColumnType("decimal(9,6)").IsRequired(false);
+                entity.Property(p => p.Latitude).HasColumnType("decimal(18,12)").IsRequired(false);
+                entity.Property(p => p.Longitude).HasColumnType("decimal(18,12)").IsRequired(false);
                 entity.Property(p => p.WebsiteUrl).HasMaxLength(200).IsRequired(false);
                 entity.Property(p => p.ContactPhone).HasMaxLength(20).IsRequired(false);
                 entity.Property(p => p.IsDeleted).HasDefaultValue(false).IsRequired();
@@ -100,7 +100,7 @@ namespace WanderMap.Data
             {
                 entity.HasKey(ph => ph.Id);
                 entity.Property(ph => ph.Url).IsRequired();
-                entity.Property(ph => ph.FileName).HasMaxLength(255);
+                entity.Property(ph => ph.OriginalFileName).HasMaxLength(255);
                 entity.Property(ph => ph.ContentType).HasMaxLength(100);
                 entity.Property(ph => ph.Size).IsRequired();
 
@@ -123,7 +123,6 @@ namespace WanderMap.Data
                 entity.Property(ph => ph.IsMain).HasDefaultValue(false).IsRequired();
                 entity.Property(ph => ph.SortOrder).HasDefaultValue(0).IsRequired();
                 entity.Property(ph => ph.CreatedAt).IsRequired();
-                entity.Property(ph => ph.BlobPath).HasMaxLength(500).IsRequired(false);
             });
 
             // ---------------------

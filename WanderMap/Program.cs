@@ -10,7 +10,10 @@ builder.Services.AddControllersWithViews();
 // 2?? Реєструємо наш контекст з PostgreSQL
 builder.Services.AddDbContext<WanderMapDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<ISlugService, SlugService>();    
+// Реєструємо наші сервіси
+builder.Services.AddScoped<ISlugService, SlugService>();
+builder.Services.AddScoped<IProccessAndSavePhotoService, LocalProccessAndSavePhotoService>();
+builder.Services.AddScoped<PhotoControlService>();
 // 3?? Створюємо застосунок
 var app = builder.Build();
 
